@@ -20,6 +20,18 @@ type NFTData = {
   transactionHash: string;
 };
 
+// Add type definition for window.ethereum
+declare global {
+  interface Window {
+    ethereum?: {
+      isMetaMask?: true;
+      request: (args: { method: string; params?: any[] }) => Promise<any>;
+      on: (event: string, handler: (accounts: string[]) => void) => void;
+      removeListener: (event: string, handler: (accounts: string[]) => void) => void;
+    };
+  }
+}
+
 // Mock function to simulate checking eligibility
 const checkWhitelistStatus = async (address: string): Promise<boolean> => {
   console.log(`Checking eligibility for ${address}...`);
@@ -78,17 +90,24 @@ export default function SoulboundMint() {
       window.ethereum.on("accountsChanged", handleAccountsChanged);
 
       return () => {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+        if (window.ethereum) {
+          window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+        }
       };
     }
   }, [isClient, toast]);
 
   const connectWallet = async () => {
-    if (!isClient || !window.ethereum) {
+    if (!isClient) return;
+
+    if (!window.ethereum) {
+      console.log("MetaMask not found. Simulating wallet connection for development.");
+      // Using a known address for mock connection
+      const mockAccount = "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B";
+      setAccount(mockAccount);
       toast({
-        variant: "destructive",
-        title: "MetaMask not found",
-        description: "Please install MetaMask to use this app.",
+        title: "Wallet Connected (Simulated)",
+        description: "This is a mock wallet for testing purposes.",
       });
       return;
     }
