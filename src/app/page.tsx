@@ -1,3 +1,11 @@
+import SoulboundMint from '@/components/soulbound-mint';
+
 export default function Home() {
-  return <></>;
+  return (
+    <div className="bg-background text-foreground">
+      <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8">
+        <SoulboundMint />
+      </main>
+    </div>
+  );
 }
